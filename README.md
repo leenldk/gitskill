@@ -1,2 +1,2 @@
 # gitskill
-master change &&&&&
+Creating a new branch is quick ans simple
