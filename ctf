@@ -1,0 +1,90 @@
+nmap : 发送 ping 包探测 1 - 10000 端口
+    -vv : 详细模式
+    -sV : 系统版本侦测
+    -version-intensity [0~9] : 设置侦测强度
+    -version-trace : 显示详细过程
+    -O : 探测操作系统类型， 网络距离
+    -A : 所有信息
+
+nmap -sn 172.16.1.0/24 
+nmap -sn 172.16.1.100-110
+扫描网段区间
+
+-p1-100    -p80,443,21 
+扫描指定端口
+
+nmap -D172.16.1.163,172.16.1.164 -e eth1 172.16.1.165
+用 172.16.1.163,172.16.1.164 掩盖真实地址
+-S ： 伪造地址
+-g : 指定源端口
+
+
+1、Half-open scanning
+
+这是nmap默认的扫描方式，通常被称作半开放扫描（Half-open scanning ）。该方式发送SYN到目标端口，如果收到SYN/ACK回复，那么判断端口是开放的；如果收到RST包，说明该端口是关闭的，如果没有收到回复，那么判断端口是被屏蔽的（Filtered）。因为该方式仅发送SYN包对目标主机的特定端口，但不建立的完整的TCP连接，所以相对比较隐蔽，而且效率比较高，适用范围广。
+2、tcp connect
+
+使用系统网络API connect向目标主机的端口发起连接，如果无法连接，说明该端口关闭，该方式扫描速度比较慢，而且由于建立完整的TCP连接会在目标机上留下记录信息，不够隐藏，所以TCP connect是TCP SYN无法使用才考虑选择的方式。
+3、tcp ACK scanning
+
+向目标主机的端口发送ack包，如果收到RST包，说明该端口没有被防火墙屏蔽，没有收到RST包，说明被屏蔽，该方式只能用于确定防火墙是否屏蔽某个端口，可以辅助TCP SYN的方式来判断目标主机防火墙的状况。
+4、tcp FIN /Xmas/NULL scanning
+
+这三种扫描方式称为秘密扫描（Stsalthy Scan），因为相对比较隐藏，FIN扫描向目标主机的端口发送的TCP FIN包或Xmas tree包/Null包，如果收不到对方RST回复包，那么说明该端口是关闭的，没有收到RST包说明端口可能是开放的或被屏蔽的。
+其中Xmas tree包是指fiags中FIN URG PUSI设置为1的tcp包，NULL包是指所有flags都为0的tcp包。
+
+-sS/sT/sA/sW/sW :指定使用TCP
+SYN/CONNECT()/ACK/window/Maimon Scans的方式来对目标主机进行扫描
+-sU ：指定使用UDP扫描方式确定目标主机的UDP端口状态。
+-sN/sF/sX：指定使用TCP Null。FIN ａｎｄ Xmas scans秘密扫描方式来协助探测对方的TCP端口状态。
+-ssanflags< flags >:定制TCP包的flags。
+-sI:指定使用idle scan方式来扫描目标主机（前提是需要找到合适的zombie host）
+-sY/sZ：使用SCTP INIT/ｃｏｏｋｉｅ-ECHO 来扫描SCTP协议端口的开放的情况。
+-s0：使用IP protocol 扫描确定目标支持的歇息类型。
+-b< FTP relay host>:使用FTP bounce scan扫描方式
+-p < port ranges>：扫描指定端口
+如-p22；-p1-65535；-p U：53,111,137,T:21-192.168.1.18080,S:9 （ T代表TCP，U 代表UDP，S代表SCTP协议）
+-F （Fast mode）快速模式，仅扫描TOP 100的端口
+-r：不进行端口随记打乱的操作，（如无该参数，nmap会将要扫描的端口以随机顺序方式扫描，以让nmap的扫描不易被对方防火墙检测到）
+-top-ports< number >:扫描开放概率最高的number个端口，默认情况下，nmap会扫描最有可能的1000个TCP端口
+-port-ratio< ratio>:扫描指定频率以上的端口，
+-sS表示使用TCP SYN方式扫描TCP端口，-sU表示扫描UDP端口，-T4表示时间级别配置4级，-top-ports 300表示扫描最有可能开放的300个端口（tcp和udp分别有300个端口）
+-f -mtu:指定使用分片。指定数据包的MTU.
+-D<.D…【ME】,D…>:用一组ip地址掩盖真实地址。其中ME填写自己的ip地址
+
+nmap --script=vuln [target ip] # 使用 vuln 脚本检测
+
+nmap --script=auth [target ip] 
+
+nslookup -type=ptr 8.8.8.8 #查询 ip 对应域名 （ptr 反向记录）
+nslookup -type=ns http://www.baidu.com #查询DNS服务器名称
+nslookup # 进入交互 shell
+server http://ns.baidu.com # 设置查询使用的 dns 服务器
+set type=ns
+set type=mx # 查询邮箱
+
+dnsenum 163.com # 查询 dns 信息
+
+whois baidu.com 
+
+telnet [ip] [port] : 连接 ip:port
+
+中国菜刀：利用上传漏洞
+apache tomcat 扫描网段并测试 apache 密码
+pangolin  sql 注入暴库
+pker扫描器 ： 扫描网站页面
+
+GSM : 扫描并查找目标主机漏洞
+metasploit 命令：
+        msfconsole : 打开 metasploit
+        search cve-2017-7494 : 查找 CVE 漏洞利用脚本
+        use exploit/linux/samba/is_know_pipename 开始利用漏洞
+        show options 查看参数
+        exploit 开始攻击
+
+arachni : 扫描web漏洞
+
+sqlmap : 
+    sqlmap -u "site" : 是否存在 sql 注入
+
+/etc/fstab : 开机时需要挂载的文件
